@@ -550,7 +550,7 @@ a:hover {
         <div class="watermark">ADB调试工具箱</div>
         <h4>拓展工具</h4>
         <div class="adb-buttons">
-            <button class="btn adb-btn" onclick="sentry()">哨兵监控</button>
+            <button class="btn adb-btn" onclick="sentry()">红绿灯领航</button>
             <button class="btn adb-btn" onclick="hstrip()">小横条手势</button>
             <button class="btn adb-btn" onclick="ykpip()">易控PIP分屏</button>
             <button class="btn adb-btn" onclick="lyyk()">蓝牙遥控(本地下载)</button>
@@ -850,8 +850,8 @@ const downloadToPhoneAndPush = async (appName, downloadUrl, savePath, backupUrl=
 
 // 软件一键安装函数
 const sfgj = ()=>downloadToPhoneAndPush("沙发管家","https://zero.shafa.com/file/pad_webwww/shafa_market/latest","/storage/emulated/0/Download/sfgj.apk","http://a14472357.a.328657.xyz/a14472357/sfgj4.9.54.apk","com.shafa.markethd");
-const yygj = ()=>downloadToPhoneAndPush("应用管家","https://file.vju.cc/%E5%BA%94%E7%94%A8%E7%AE%A1%E5%AE%B6/%E5%BA%94%E7%94%A8%E7%AE%A1%E5%AE%B6v1.9.0%281905%29%E5%85%AC%E7%AD%BE%E7%89%88.apk","/storage/emulated/0/Download/yygj.apk","https://dl-e.feejii.com/storage/files/2026/08/07/2/5108947512/17861145111851.gz?t=6a9c297f&rlimit=20&us=YcEEiH9S5D&sign=03866737133c1380f24986e03b258b24&download_name=yygj.apk","com.yunpan.appmanage");
-const sentry = ()=>downloadToPhoneAndPush("哨兵监控","http://a14472357.328657.xyz/a14472357/sbcamerav1.1.8.apk","/storage/emulated/0/Download/sentry.apk",null);
+const yygj = ()=>downloadToPhoneAndPush("应用管家","http://a14472357.a.328657.xyz/a14472357/yygj1.9.0.apk","/storage/emulated/0/Download/yygj.apk","https://dl-e.feejii.com/storage/files/2026/08/07/2/5108947512/17861145111851.gz?t=6a9c297f&rlimit=20&us=YcEEiH9S5D&sign=03866737133c1380f24986e03b258b24&download_name=yygj.apk","com.yunpan.appmanage");
+const sentry = ()=>downloadToPhoneAndPush("红绿灯领航","http://a14472357.a.328657.xyz/a14472357/hld_v2.7.0.apk","/storage/emulated/0/Download/hld.apk","https://file.vju.cc/%E7%BA%A2%E7%BB%BF%E7%81%AF%E9%A2%86%E8%88%AA/%E7%BA%A2%E7%BB%BF%E7%81%AF%E9%A2%86%E8%88%AA_v2.7.0%E6%AD%A3%E5%BC%8F%E7%89%88.apk");
 const hstrip = ()=>downloadToPhoneAndPush("小横条手势","http://a14472357.328657.xyz/a14472357/Gesture_1.6.4.apk","/storage/emulated/0/Download/Gesture.apk","http://a14472357.a.328657.xyz/a14472357/Gesture_1.6.4.apk","com.omarea.gesture");
 const ykpip = ()=>downloadToPhoneAndPush("易控车机PIP","http://a14472357.328657.xyz/a14472357/易控车机版V1.6.10_PIP.apk","/storage/emulated/0/Download/ykpip.apk",null);
 const cdb = ()=>downloadToPhoneAndPush("侧边栏","https://gjx.cheji.cc/apk/cbl.apk","/storage/emulated/0/Download/cdb.apk",null,"com.hzsoft.sidebar");
@@ -1188,6 +1188,9 @@ const ACTIVATION_ENABLED = true;
 // 激活密钥：可自行修改为任意字符串；修改后需用配套“激活码生成器”重新签发激活码
 const ACTIVATION_SECRET = "CHEJI-ADB-KEY-3B3F1B002AA90359EEB2BAC3";
 const ACTIVATION_STORAGE_KEY = "tango_activation_v3";
+// 有效期：解锁后 ACTIVATION_DAYS 天内免输入，到期需重新输入激活码（存解锁时间戳）
+const ACTIVATION_DAYS = 15;
+const ACTIVATION_UNLOCK_KEY = "tango_activation_ts_v1";
 
 function bytesToHex(buf){
     return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
@@ -1258,7 +1261,13 @@ async function checkActivation(){
     try{
         const saved = localStorage.getItem(ACTIVATION_STORAGE_KEY);
         if(saved === code){
-            return true;
+            // 有效期检查：15 天内直接放行；到期需重新输入激活码
+            let ts = parseInt(localStorage.getItem(ACTIVATION_UNLOCK_KEY)||"0", 10);
+            if(!ts){ ts = Date.now(); try{ localStorage.setItem(ACTIVATION_UNLOCK_KEY, String(ts)); }catch(e){} }
+            if(Date.now() - ts < ACTIVATION_DAYS*24*3600*1000){
+                return true;
+            }
+            document.getElementById("activation-error").textContent = "🔒 授权有效期已到（"+ACTIVATION_DAYS+"天），请重新输入激活码解锁";
         }
     }catch(e){}
     document.getElementById("activation-overlay").classList.add("show");
@@ -1274,10 +1283,13 @@ async function activateTool(){
     const code = await getMachineCode();
     const expected = (await calcActivationCode(code)).replace(/-/g, "");
     if(input === expected){
-        try{ localStorage.setItem(ACTIVATION_STORAGE_KEY, code); }catch(e){}
+        try{
+            localStorage.setItem(ACTIVATION_STORAGE_KEY, code);
+            localStorage.setItem(ACTIVATION_UNLOCK_KEY, String(Date.now()));
+        }catch(e){}
         document.getElementById("activation-overlay").classList.remove("show");
         errBox.textContent = "";
-        log("✅ 激活成功，本机本浏览器永久有效");
+        log("✅ 激活成功，有效期 "+ACTIVATION_DAYS+" 天（到期需重新输入激活码）");
         console.log("激活成功");
     }else{
         errBox.textContent = "❌ 激活码错误，请核对机器码后重试";
@@ -1323,7 +1335,7 @@ window.addEventListener('DOMContentLoaded',()=>{
         <input id="activation-input" placeholder="输入激活码，如 AAAA-BBBB-CCCC-DDDD" autocomplete="off">
         <button id="activation-btn" onclick="activateTool()">激 活</button>
         <div id="activation-error"></div>
-        <div class="activation-note">激活后本机本浏览器永久有效，更换浏览器或电脑需重新激活</div>
+        <div class="activation-note">激活后本机本浏览器有效期 15 天，到期需重新输入激活码；更换浏览器或电脑需重新激活</div>
     </div>
 </div>
 </body>
