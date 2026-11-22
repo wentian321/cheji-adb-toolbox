@@ -503,7 +503,7 @@ a:hover {
     <div style="text-align: center; margin-bottom: 15px;">
         <h1 style="margin: 0 0 10px 0; font-size: 24px; color: #333;">车机ADB工具箱｜WebUSB调试版</h1>
         <div style="font-size: 14px; color: #999; margin-bottom: 15px;">
-            <span id="app-version">v3.1.0 在线网页版</span>
+            <span id="app-version">V11.22版</span>
         </div>
     </div>
     <hr style="margin:15px 0;border:1px solid #eee">
@@ -545,6 +545,19 @@ a:hover {
         </div>
     </div>
 
+    <!-- 本地APK自选安装 -->
+    <div class="watermark-container adb-section">
+        <div class="watermark">ADB调试工具箱</div>
+        <h4>本地APK自主安装</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+            <input type="file" id="apkFile" multiple accept=".apk" style="display:none">
+            <button class="btn adb-btn" onclick="loadApkFile()">选择APK文件</button>
+            <span id="apkFileName" style="padding:8px;background:#fff;border:1px solid #ddd;border-radius:4px;min-width:220px">未选择文件</span>
+            <button class="btn" style="background:#007bff;color:#fff" onclick="installApkFile()">推送并安装</button>
+        </div>
+        <p style="font-size:12px;color:#666;margin-top:10px">操作后请勿重复点击，底部日志查看执行过程，方便调试报错</p>
+    </div>
+
     <!-- 其他工具软件 -->
     <div class="watermark-container adb-section">
         <div class="watermark">ADB调试工具箱</div>
@@ -569,19 +582,6 @@ a:hover {
             <button class="btn adb-btn" onclick="installFromUrl()">下载并安装</button>
         </div>
         <p style="font-size:12px;color:#666;margin-top:10px">在车机上下载 APK 直链并安装，支持任意 http/https 地址；操作详情见底部执行日志</p>
-    </div>
-
-    <!-- 本地APK自选安装 -->
-    <div class="watermark-container adb-section">
-        <div class="watermark">ADB调试工具箱</div>
-        <h4>本地APK自主安装</h4>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-            <input type="file" id="apkFile" multiple accept=".apk" style="display:none">
-            <button class="btn adb-btn" onclick="loadApkFile()">选择APK文件</button>
-            <span id="apkFileName" style="padding:8px;background:#fff;border:1px solid #ddd;border-radius:4px;min-width:220px">未选择文件</span>
-            <button class="btn" style="background:#007bff;color:#fff" onclick="installApkFile()">推送并安装</button>
-        </div>
-        <p style="font-size:12px;color:#666;margin-top:10px">操作后请勿重复点击，底部日志查看执行过程，方便调试报错</p>
     </div>
 
     <!-- 自定义Shell命令调试 -->
@@ -854,7 +854,7 @@ const yygj = ()=>downloadToPhoneAndPush("应用管家","http://a14472357.a.32865
 const sentry = ()=>downloadToPhoneAndPush("红绿灯领航","http://a14472357.a.328657.xyz/a14472357/hld_v2.7.0.apk","/storage/emulated/0/Download/hld.apk","https://file.vju.cc/%E7%BA%A2%E7%BB%BF%E7%81%AF%E9%A2%86%E8%88%AA/%E7%BA%A2%E7%BB%BF%E7%81%AF%E9%A2%86%E8%88%AA_v2.7.0%E6%AD%A3%E5%BC%8F%E7%89%88.apk");
 const hstrip = ()=>downloadToPhoneAndPush("小横条手势","http://a14472357.328657.xyz/a14472357/Gesture_1.6.4.apk","/storage/emulated/0/Download/Gesture.apk","http://a14472357.a.328657.xyz/a14472357/Gesture_1.6.4.apk","com.omarea.gesture");
 const ykpip = ()=>downloadToPhoneAndPush("易控车机PIP","http://a14472357.328657.xyz/a14472357/易控车机版V1.6.10_PIP.apk","/storage/emulated/0/Download/ykpip.apk",null);
-const cdb = ()=>downloadToPhoneAndPush("侧边栏","https://gjx.cheji.cc/apk/cbl.apk","/storage/emulated/0/Download/cdb.apk",null,"com.hzsoft.sidebar");
+const cdb = ()=>downloadToPhoneAndPush("侧边栏","http://a14472357.a.328657.xyz/a14472357/cbl.apk","/storage/emulated/0/Download/cdb.apk",null,"com.hzsoft.sidebar");
 const bdui = ()=>downloadToPhoneAndPush("布丁UI","https://file.vju.cc/%E5%B8%83%E4%B8%81UI%E6%A1%8C%E9%9D%A2/%E5%B8%83%E4%B8%81UI2.2.7.apk","/storage/emulated/0/Download/bdui.apk","https://dl-e.feejii.com/storage/files/2026/09/04/3/5115293073/17885225616111.gz?t=6a9c2a64&rlimit=20&us=7b1SLKhokG&sign=764e28a41ab2624f6dda3e096a3cff68&download_name=bdUI_2.2.7.apk","com.sfcar.launcher");
 const lyyk = ()=>{
     const a = document.createElement('a');
